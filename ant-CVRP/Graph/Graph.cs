@@ -1,21 +1,26 @@
-﻿
-
-namespace GraphRepresentation
+﻿namespace GraphRepresentation
 {
     public class Graph
     {
         public List<Point> Points { get; set; }
 
         // TODO: To change
-        public Dictionary<(int,int), Edge> Edges { get; set; }
+        public Dictionary<(int, int), Edge> Edges { get; set; }
+
         public int Dimensions { get; set; }
         public double MinimumPheromone { get; set; }
 
-        public Graph(List<Point> Points)
+        public Point StartPoint { get; set; }
+
+        public int CapacityLimit { get; set; }
+
+        public Graph(List<Point> Points, int capacityLimit)
         {
-            Edges = new Dictionary<(int,int), Edge>();
+            Edges = new Dictionary<(int, int), Edge>();
             this.Points = Points;
             Dimensions = Points.Count;
+            StartPoint = Points[0];
+            CapacityLimit = capacityLimit;
             CreateEdges();
         }
 
@@ -29,9 +34,9 @@ namespace GraphRepresentation
                     {
                         Edge edge = new Edge(Points[i], Points[j]);
 
-                        if(!Edges.ContainsKey((Math.Min(i, j), Math.Max(i, j))))
+                        if (!Edges.ContainsKey((Math.Min(i, j), Math.Max(i, j))))
                         {
-                           Edges.Add((Math.Min(i, j), Math.Max(i, j)), edge);
+                            Edges.Add((Math.Min(i, j), Math.Max(i, j)), edge);
                         }
                     }
                 }
@@ -40,7 +45,7 @@ namespace GraphRepresentation
 
         public Edge GetEdge(int firstPointId, int secondPointId)
         {
-            return Edges[(Math.Min(firstPointId, secondPointId),Math.Max(firstPointId,secondPointId))];
+            return Edges[(Math.Min(firstPointId, secondPointId), Math.Max(firstPointId, secondPointId))];
         }
 
         public void ResetPheromone(double pheromoneValue)
@@ -56,16 +61,15 @@ namespace GraphRepresentation
             edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
         }
 
-        public void EvaporatePheromone(int firstId,int secondId, double value)
+        public void EvaporatePheromone(int firstId, int secondId, double value)
         {
             Edge edge = GetEdge(firstId, secondId);
-            edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value); 
+            edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
         }
 
         public void DepositPheromone(Edge edge, double value)
         {
             edge.Pheromone += value;
-
         }
 
         public void DepositPheromone(int firstId, int secondId, double value)
@@ -73,22 +77,22 @@ namespace GraphRepresentation
             Edge edge = GetEdge(firstId, secondId);
             edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
             edge.Pheromone += value;
-
         }
-        // chat generated 
+
+        // chat generated
         public void PrintPheromoneMatrix()
         {
             Console.WriteLine("=== Pheromone Matrix ===");
             Console.Write("     ");
             for (int i = 0; i < Points.Count; i++)
             {
-                Console.Write($"{i+1,6}");
+                Console.Write($"{i + 1,6}");
             }
             Console.WriteLine();
 
             for (int i = 0; i < Points.Count; i++)
             {
-                Console.Write($"{i+1,4} ");
+                Console.Write($"{i + 1,4} ");
                 for (int j = 0; j < Points.Count; j++)
                 {
                     if (i == j)
@@ -111,7 +115,6 @@ namespace GraphRepresentation
             }
         }
 
-
         public void PrintDemands()
         {
             Console.WriteLine("=== Demands ===");
@@ -127,13 +130,13 @@ namespace GraphRepresentation
             Console.Write("     ");
             for (int i = 0; i < Points.Count; i++)
             {
-                Console.Write($"{i+1,6}");
+                Console.Write($"{i + 1,6}");
             }
             Console.WriteLine();
 
             for (int i = 0; i < Points.Count; i++)
             {
-                Console.Write($"{i+1,4} ");
+                Console.Write($"{i + 1,4} ");
                 for (int j = 0; j < Points.Count; j++)
                 {
                     if (i == j)

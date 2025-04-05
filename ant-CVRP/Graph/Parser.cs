@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿  using System.Globalization;
 
 namespace GraphRepresentation
 {
@@ -13,20 +10,26 @@ namespace GraphRepresentation
             int size = 0;
             var coordinates = new Dictionary<int, (double X, double Y)>();
             var demands = new Dictionary<int, double>();
+            var capacityLimit = 0;
 
             bool readingCoords = false;
             bool readingDemands = false;
-       
 
             foreach (var line in File.ReadLines(filePath))
             {
                 string trimmed = line.Trim();
 
-                if(trimmed.StartsWith("DIMENSION"))
+                if (trimmed.StartsWith("DIMENSION"))
                 {
                     trimmed = trimmed.Split(" : ")[1];
                     int.TryParse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture, out size);
-                    System.Console.WriteLine(10);
+                   
+                }
+
+                if (trimmed.StartsWith("CAPASITY"))
+                {
+                    trimmed = trimmed.Split(" : ")[1];
+                    int.TryParse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture, out capacityLimit);
                 }
 
                 if (trimmed.StartsWith("NODE_COORD_SECTION"))
@@ -83,7 +86,7 @@ namespace GraphRepresentation
             }
 
             // Tworzenie grafu
-            Graph graph = new Graph(points);
+            Graph graph = new Graph(points, capacityLimit);
             return graph;
         }
     }

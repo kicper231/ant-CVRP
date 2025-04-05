@@ -1,4 +1,4 @@
-﻿namespace Solver
+﻿namespace AntSolver
 {
     public class Parameters
     {
@@ -45,16 +45,19 @@
         /// </summary>
         public int LengthLimit { get; set; }
 
+        public double StartPheromone { get; set; }
 
-        public Parameters(int Alfa, int Beta, double EvaporationRate, double T0, double Q0, int AntsCount, int Iterations)
+        public Parameters(int alfa, int beta, double evaporationRate, double T0, double Q0, int antsCount, int iterations, int capacityLimit, double startPheromone)
         {
-            this.Alfa = Alfa;
-            this.Beta = Beta;
+            this.Alfa = alfa;
+            this.Beta = beta;
             this.EvaporationRate = EvaporationRate;
             this.T0 = T0;
             this.Q0 = Q0;
-            this.AntsCount = AntsCount;
+            this.AntsCount = antsCount;
             this.Iterations = Iterations;
+            this.CapacityLimit = capacityLimit;
+            this.StartPheromone = startPheromone;
         }
 
         /// <summary>

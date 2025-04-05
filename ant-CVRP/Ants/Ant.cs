@@ -1,25 +1,29 @@
 ﻿using GraphRepresentation;
-using System.Collections.Generic;
 
 namespace Ants
 {
     public class Ant
     {
-        public Ant(Graph graph, double capacityLimit, double lengthLimit)
+        public Ant(Graph graph, double capacityLimit, double lengthLimit, Point startPoint)
         {
             CapacityLimit = capacityLimit;
             Graph = graph;
-            VisitedNodes = new List<Point>();
-            UnvisitedNodes = new List<Point>();
+            VisitedPoints = new List<Point>();
+            UnvisitedPoints = new List<Point>();
             Path = new List<Edge>();
-            PathLengthLimit  = lengthLimit;
+            PathLengthLimit = lengthLimit;
             CapacityLimit = CapacityLimit;
+            StartPoint = startPoint;
+            ActualPoint = startPoint;
         }
 
         public Graph Graph { get; set; }
-        public List<Point> VisitedNodes { get; set; }
-        public List<Point> UnvisitedNodes { get; set; }
+        public List<Point> VisitedPoints { get; set; }
+        public List<Point> UnvisitedPoints { get; set; }
         public List<Edge> Path { get; set; }
+
+        public Point StartPoint { get; set; }
+        public Point ActualPoint { get; set; }
 
         public double PathLength { get; set; }
         public double PathLengthLimit { get; set; }
@@ -27,18 +31,23 @@ namespace Ants
         public double CapacityLimit { get; set; }
         public double Capacity { get; set; } = 0;
 
-
         public void Reset()
         {
-            VisitedNodes.Clear();
-            UnvisitedNodes.Clear();
+            Path.Clear();
+            PathLength = 0;
+        }
+
+        public void ResetTotal()
+        {
+            VisitedPoints.Clear();
+            UnvisitedPoints.Clear();
             Path.Clear();
             PathLength = 0;
             Capacity = 0;
 
             Point[] array = new Point[Graph.Points.Count];
-            Graph.Points.CopyTo(array);
-            UnvisitedNodes.AddRange(array);
+            Graph.Points.CopyTo(array, 1);
+            UnvisitedPoints.AddRange(array);
         }
     }
 }
