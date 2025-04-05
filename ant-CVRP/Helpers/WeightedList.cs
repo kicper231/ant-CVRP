@@ -1,19 +1,17 @@
-﻿// License: MIT
-// Source, Docs, Issues: https://github.com/cdanek/kaimira-weighted-list/
+﻿// License: MIT Source, Docs, Issues: https://github.com/cdanek/kaimira-weighted-list/
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using static KaimiraGames.WeightErrorHandlingType;
 
 namespace KaimiraGames
 {
     /// <summary>
-    /// This implements an algorithm for sampling from a discrete probability distribution via a generic list
-    /// with extremely fast O(1) get operations and small (close to minimally small) O(n) space complexity and
-    /// O(n) CRUD complexity. In other words, you can add any item of type T to a List with an integer weight,
-    /// and get a random item from the list with probability ( weight / sum-weights ).
+    /// This implements an algorithm for sampling from a discrete probability distribution via a
+    /// generic list with extremely fast O(1) get operations and small (close to minimally small)
+    /// O(n) space complexity and O(n) CRUD complexity. In other words, you can add any item of type
+    /// T to a List with an integer weight, and get a random item from the list with probability (
+    /// weight / sum-weights ).
     /// </summary>
     public class WeightedList<T> : IEnumerable<T>
     {
@@ -216,7 +214,7 @@ namespace KaimiraGames
                 _minWeight = (weight < _minWeight) ? weight : _minWeight;
                 _maxWeight = (_maxWeight < weight) ? weight : _maxWeight;
                 _totalWeight += weight;
-                scaledProbabilityNumerator.Add(weight * Count); // STEP 3 
+                scaledProbabilityNumerator.Add(weight * Count); // STEP 3
                 _alias.Add(0);
                 _probabilities.Add(0);
             }
@@ -262,7 +260,8 @@ namespace KaimiraGames
                 _probabilities[g] = _totalWeight; //6.1
             }
 
-            // STEP 7 - Can't happen for this implementation but left in source to match Keith Schwarz's algorithm
+            // STEP 7 - Can't happen for this implementation but left in source to match Keith
+            // Schwarz's algorithm
 #pragma warning disable S125 // Sections of code should not be commented out
             //while (small.Count > 0)
             //{
@@ -283,8 +282,8 @@ namespace KaimiraGames
     }
 
     /// <summary>
-    /// A single item for a list with matching T. Create one or more WeightedListItems, add to a Collection
-    /// and Add() to the WeightedList for a single calculation pass.
+    /// A single item for a list with matching T. Create one or more WeightedListItems, add to a
+    /// Collection and Add() to the WeightedList for a single calculation pass.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public readonly struct WeightedListItem<T>

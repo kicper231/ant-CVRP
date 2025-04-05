@@ -5,7 +5,7 @@
         public List<Point> Points { get; set; }
 
         // TODO: To change
-        public Dictionary<(int, int), Edge> Edges { get; set; }
+        private Dictionary<(int, int), Edge> Edges { get; set; }
 
         public int Dimensions { get; set; }
         public double MinimumPheromone { get; set; }

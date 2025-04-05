@@ -70,6 +70,7 @@
             EvaporationRate = 0.1;
             Q0 = 0.9;
             AntsCount = 20;
+            CapacityLimit = 40;
             Iterations = 10000;
             T0 = 0.01;
         }

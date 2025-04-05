@@ -1,7 +1,4 @@
-﻿using GraphRepresentation;
-using System.Drawing;
-
-namespace GraphRepresentation
+﻿namespace GraphRepresentation
 {
     public class Edge
     {
@@ -11,7 +8,10 @@ namespace GraphRepresentation
         public double Pheromone { get; set; }
         public double Weight { get; set; }
 
-        public Edge() { }
+        public bool Direction { get; set; }
+
+        public Edge()
+        { }
 
         public Edge(Point start, Point end)
         {
@@ -20,7 +20,7 @@ namespace GraphRepresentation
             Length = Math.Round(Start.DistanceTo(End), 3);
             // Maybe to remove
             Weight = Length;
-            Pheromone = 0;
+            Pheromone = 1;
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using GraphRepresentation;
-using AntSolver;
+﻿using AntSolver;
+using GraphRepresentation;
 
 namespace Program
 {
@@ -7,14 +7,18 @@ namespace Program
     {
         private static void Main(string[] args)
         {
-            Graph graph = CVRPDataParser.Parse("DataSets/E-n22-k4.txt");
+            Graph graph = CVRPDataParser.Parse("DataSets/Example.txt");
 
+            graph.PrintDistanceMatrix();
 
-            Solver solver = new Solver(graph);
+            Solver solver = new Solver(graph, null);
+
+            solver.Solve();
+
+            solver.BestSolution.PrintSolution();
 
             //graph.PrintDemands();
             //Console.WriteLine();
-            //graph.PrintDistanceMatrix();
             //Console.WriteLine();
             //graph.PrintPheromoneMatrix();
         }

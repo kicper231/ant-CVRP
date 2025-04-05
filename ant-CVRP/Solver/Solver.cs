@@ -8,7 +8,7 @@ namespace AntSolver
     public class Solver
     {
         public Parameters Parameters { get; set; }
-        private Ant GlobalBestAnt { get; set; }
+        public Solution BestSolution { get; set; } 
 
         private List<Ant> Ants { get; set; }
         private List<double> Results { get; set; }
@@ -17,46 +17,59 @@ namespace AntSolver
 
         private List<Solution> Solutions { get; set; }
 
-        public Solver(Graph graph)
+        public Solver(Graph graph, Parameters? parameters)
         {
+            Ants = new List<Ant>();
             Graph = graph;
             Solutions = new List<Solution>();
-            Parameters = new Parameters();
-            Parameters.CapacityLimit = graph.CapacityLimit;
-        }
+            if (parameters == null)
+            {
+                Parameters = new Parameters();
+            }
+            else
+            {
+                Parameters = parameters!;
+            }
 
-        public Solver(Graph graph, Parameters parameters)
-        {
-            Graph = graph;
-            Solutions = new List<Solution>();
-            Parameters = parameters;
             Parameters.CapacityLimit = graph.CapacityLimit;
-
         }
 
         public void Solve()
         {
             // Create Ants
             CreateAnts();
-            Solution solution = OneAntSolution(Ants[0]);
-            Solutions.Add(solution);
-
-            //for (int i = 1; i <= Parameters.Iterations; i++)
-            //{
-            //    Solutions.Clear();
-            //    ResetAnts();
-
-            //    for (int j = 0; j < Parameters.AntsCount; j++)
-            //    {
-            //Solution solution = OneAntSolution(Ants[j]);
+            //Solution solution = OneAntSolution(Ants[0]);
+            //solution.PrintSolution();
             //Solutions.Add(solution);
-            //    }
 
-            //    // Wyciagnij najlepsze rozwiazanie
+            for (int i = 1; i <= Parameters.Iterations; i++)
+            {
+                Solutions.Clear();
+                ResetAnts();
 
-            //    // Update Pheronome
-            //    UpdatePheromone();
-            //}
+                for (int j = 0; j < Parameters.AntsCount; j++)
+                {
+                    Solution solution = OneAntSolution(Ants[j]);
+                    //Console.WriteLine();
+                 //   solution.PrintSolution();
+                  //  Console.WriteLine();
+                    Solutions.Add(solution);
+
+                    if (i == 1 && j==0)
+                    {
+                        BestSolution = solution;
+                    }
+                }
+
+                // Wyciagnij najlepsze rozwiazanie
+
+                if(BestSolution.Rating > Solutions.Min(x=>x.Rating)) {
+                    BestSolution = Solutions.MinBy(x => x.Rating);
+                }
+                // Update Pheronome
+                UpdatePheromone();
+            }
+             
         }
 
         public Solution OneAntSolution(Ant ant)
@@ -69,22 +82,24 @@ namespace AntSolver
                 while (ant.UnvisitedPoints.Count != 0)
                 {
                     double[] probabilities = ant.UnvisitedPoints
-                                                .Select(x => Graph.Edges[(ant.ActualPoint.Id, x.Id)].Pheromone * Parameters.Alfa +
-                                                 Math.Pow(1 / (Graph.Edges[(ant.ActualPoint.Id, x.Id)].Length), Parameters.Beta))
+                                                .Select(x => Math.Pow(Graph.GetEdge(ant.ActualPoint.Id, x.Id).Pheromone, Parameters.Alfa) *
+                                                 Math.Pow(1 / (Graph.GetEdge(ant.ActualPoint.Id, x.Id).Length), Parameters.Beta))
                                                 .ToArray();
 
                     double sum = probabilities.Sum(x => x);
                     probabilities = probabilities.Select(x => x / sum).ToArray();
+                    double checksum = probabilities.Sum(x => x);
 
                     Point choosenPoint = SelectRandomByProbability(ant.UnvisitedPoints, probabilities);
 
                     Edge choosenEdge = Graph.GetEdge(ant.ActualPoint.Id, choosenPoint.Id);
-
+                    choosenEdge.Direction = ant.ActualPoint.Id < choosenPoint.Id ? true : false;
                     ant.Capacity += choosenPoint.Demand;
 
                     if (ant.Capacity <= ant.CapacityLimit)
                     {
                         ant.Path.Add(choosenEdge);
+                        ant.ActualPoint = choosenPoint;
                         ant.VisitedPoints.Add(choosenPoint);
                         ant.UnvisitedPoints.Remove(choosenPoint);
                         ant.PathLength += choosenEdge.Length;
@@ -94,8 +109,9 @@ namespace AntSolver
                         break;
                     }
                 }
-                solution.Paths.Add(ant.Path);
+                solution.Paths.Add(ant.CopyPath());
             }
+            solution.RateSolution();
 
             return solution;
         }
@@ -117,12 +133,44 @@ namespace AntSolver
             }
         }
 
-        public void RateSolution()
-        {
-        }
-
         public void UpdatePheromone()
         {
+            // Wyparowanie feromonu (tau_ij = (1 - rho) * tau_ij)
+            foreach (var edgeEntry in Graph.Edges)
+            {
+                var edge = edgeEntry.Value;
+                edge.Pheromone *= (1 - Parameters.Rho);
+            }
+
+            // Osadzanie feromonu przez wszystkie mrówki (Delta_tau = Q / Lk)
+            foreach (var solution in Solutions)
+            {
+                double depositAmount = Parameters.Q / solution.Rating;
+
+                foreach (var path in solution.Paths)
+                {
+                    foreach (var edge in path)
+                    {
+                        Graph.DepositPheromone(edge, depositAmount);
+                    }
+                }
+            }
+
+            // Wzmocnienie ścieżek przez wybrane najlepsze elitarne mrówki (Elitist Ant System)
+            var eliteSolutions = Solutions.OrderBy(s => s.Rating).Take(Parameters.EliteCount);
+
+            foreach (var eliteSolution in eliteSolutions)
+            {
+                double eliteDeposit = Parameters.Q / eliteSolution.Rating;
+
+                foreach (var path in eliteSolution.Paths)
+                {
+                    foreach (var edge in path)
+                    {
+                        Graph.DepositPheromone(edge, eliteDeposit);
+                    }
+                }
+            }
         }
 
         public static T SelectRandomByProbability<T>(List<T> items, double[] probabilities)

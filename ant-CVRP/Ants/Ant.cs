@@ -15,6 +15,11 @@ namespace Ants
             CapacityLimit = CapacityLimit;
             StartPoint = startPoint;
             ActualPoint = startPoint;
+
+            Point[] array = new Point[Graph.Points.Count];
+            Graph.Points.CopyTo(array);
+            UnvisitedPoints.AddRange(array);
+            UnvisitedPoints.Remove(StartPoint);
         }
 
         public Graph Graph { get; set; }
@@ -35,6 +40,8 @@ namespace Ants
         {
             Path.Clear();
             PathLength = 0;
+            Capacity = 0;
+            ActualPoint = StartPoint;
         }
 
         public void ResetTotal()
@@ -46,8 +53,22 @@ namespace Ants
             Capacity = 0;
 
             Point[] array = new Point[Graph.Points.Count];
-            Graph.Points.CopyTo(array, 1);
+            Graph.Points.CopyTo(array);
             UnvisitedPoints.AddRange(array);
+            UnvisitedPoints.Remove(StartPoint);
+        }
+
+        public List<Edge> CopyPath()
+        {
+            return Path
+                .Select(e => new Edge(e.Start, e.End)
+                {
+                    Length = e.Length,
+                    Pheromone = e.Pheromone,
+                    Weight = e.Weight,
+                    Direction = e.Direction
+                })
+                .ToList();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿  using System.Globalization;
+﻿using System.Globalization;
 
 namespace GraphRepresentation
 {
@@ -23,10 +23,9 @@ namespace GraphRepresentation
                 {
                     trimmed = trimmed.Split(" : ")[1];
                     int.TryParse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture, out size);
-                   
                 }
 
-                if (trimmed.StartsWith("CAPASITY"))
+                if (trimmed.StartsWith("CAPACITY"))
                 {
                     trimmed = trimmed.Split(" : ")[1];
                     int.TryParse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture, out capacityLimit);
@@ -59,6 +58,7 @@ namespace GraphRepresentation
                         double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double x) &&
                         double.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double y))
                     {
+                        id--;
                         coordinates[id] = (x, y);
                     }
                 }

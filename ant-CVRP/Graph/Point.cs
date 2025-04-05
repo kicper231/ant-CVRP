@@ -17,8 +17,7 @@
 
         public double DistanceTo(Point anotherPoint)
         {
-            return Math.Sqrt( (anotherPoint.X - X)* (anotherPoint.X - X) + (anotherPoint.Y - Y)* (anotherPoint.Y - Y));
-
+            return Math.Sqrt((anotherPoint.X - X) * (anotherPoint.X - X) + (anotherPoint.Y - Y) * (anotherPoint.Y - Y));
         }
     }
 }
