@@ -1,7 +1,7 @@
-﻿
+﻿using GraphRepresentation;
 using System.Drawing;
 
-namespace AntColony
+namespace GraphRepresentation
 {
     public class Edge
     {
@@ -17,10 +17,10 @@ namespace AntColony
         {
             Start = start;
             End = end;
-            Length = Math.Round(Start.DistanceTo(End),3);
+            Length = Math.Round(Start.DistanceTo(End), 3);
             // Maybe to remove
             Weight = Length;
-
+            Pheromone = 0;
         }
     }
 }

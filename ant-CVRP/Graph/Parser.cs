@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace AntColony
+namespace GraphRepresentation
 {
     public static class CVRPDataParser
     {

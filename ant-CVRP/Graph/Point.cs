@@ -1,4 +1,4 @@
-﻿namespace AntColony
+﻿namespace GraphRepresentation
 {
     public struct Point
     {

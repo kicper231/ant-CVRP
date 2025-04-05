@@ -1,5 +1,6 @@
 ﻿
-namespace AntColony
+
+namespace GraphRepresentation
 {
     public class Graph
     {

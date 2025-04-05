@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Ants\" />
-    <Folder Include="Solver\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="DataSets\E-n22-k4.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
