@@ -17,7 +17,10 @@ namespace AntColony
         {
             Start = start;
             End = end;
-            //Length = Math.Round(Start.DistanceTo(End));
+            Length = Math.Round(Start.DistanceTo(End),3);
+            // Maybe to remove
+            Weight = Length;
+
         }
     }
 }
