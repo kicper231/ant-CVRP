@@ -4,10 +4,10 @@
     {
         public double X;
         public double Y;
-        public double Demand;
+        public int Demand;
         public int Id;
 
-        public Point(double x, double y, double demand, int id)
+        public Point(double x, double y, int demand, int id)
         {
             X = x;
             Y = y;
@@ -15,9 +15,12 @@
             Id = id;
         }
 
-        public double DistanceTo(Point anotherPoint)
+        public int DistanceTo(Point anotherPoint)
         {
-            return Math.Sqrt((anotherPoint.X - X) * (anotherPoint.X - X) + (anotherPoint.Y - Y) * (anotherPoint.Y - Y));
+            double xd = anotherPoint.X - X;
+            double yd = anotherPoint.Y - Y;
+            double distance = Math.Sqrt(xd * xd + yd * yd);
+            return (int)Math.Round(distance, MidpointRounding.AwayFromZero); // nint
         }
     }
 }

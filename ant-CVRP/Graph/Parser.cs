@@ -9,7 +9,7 @@ namespace GraphRepresentation
             var points = new List<Point>();
             int size = 0;
             var coordinates = new Dictionary<int, (double X, double Y)>();
-            var demands = new Dictionary<int, double>();
+            var demands = new Dictionary<int, int>();
             var capacityLimit = 0;
 
             bool readingCoords = false;
@@ -58,7 +58,6 @@ namespace GraphRepresentation
                         double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double x) &&
                         double.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double y))
                     {
-                        id--;
                         coordinates[id] = (x, y);
                     }
                 }
@@ -68,7 +67,7 @@ namespace GraphRepresentation
                     var parts = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length >= 2 &&
                         int.TryParse(parts[0], out int id) &&
-                        double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double demand))
+                        int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out int demand))
                     {
                         demands[id] = demand;
                     }
@@ -80,7 +79,7 @@ namespace GraphRepresentation
             {
                 int id = cord.Key;
                 (double x, double y) = cord.Value;
-                double demand = demands.ContainsKey(id) ? demands[id] : 0;
+                int demand = demands.ContainsKey(id) ? demands[id] : 0;
 
                 points.Add(new Point(x, y, demand, id));
             }

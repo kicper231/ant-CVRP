@@ -16,14 +16,9 @@
         public double EvaporationRate { get; set; }
 
         /// <summary>
-        /// Probability of choosing best ant path instead of random roulette
+        ///   Q / Rating parametr
         /// </summary>
-        public double Q0 { get; set; }
-
-        /// <summary>
-        /// Initial pheromone level along each Edge
-        /// </summary>
-        public double T0 { get; set; }
+        public double Q { get; set; }
 
         /// <summary>
         /// Define how many ants will be used
@@ -45,15 +40,25 @@
         /// </summary>
         public int LengthLimit { get; set; }
 
+        /// <summary>
+        /// Initial pheromone level along each Edge
+        /// </summary>
         public double StartPheromone { get; set; }
+
+        /// <summary>
+        /// Elite ants number
+        /// </summary>
+        public int EliteCount { get; set; }
+
+        public double MinPheronome { get; set; }
+        
+        public double EliteBoost { get; set; }
 
         public Parameters(int alfa, int beta, double evaporationRate, double T0, double Q0, int antsCount, int iterations, int capacityLimit, double startPheromone)
         {
             this.Alfa = alfa;
             this.Beta = beta;
             this.EvaporationRate = EvaporationRate;
-            this.T0 = T0;
-            this.Q0 = Q0;
             this.AntsCount = antsCount;
             this.Iterations = Iterations;
             this.CapacityLimit = capacityLimit;
@@ -65,14 +70,17 @@
         /// </summary>
         public Parameters()
         {
-            Beta = 2;
+            Beta = 4;
             Alfa = 1;
-            EvaporationRate = 0.1;
-            Q0 = 0.9;
-            AntsCount = 20;
-            CapacityLimit = 40;
-            Iterations = 10000;
-            T0 = 0.01;
+            EvaporationRate = 0.4;
+            Q = 250;
+            AntsCount = 60;
+            CapacityLimit = 100;
+            Iterations = 5000;
+            StartPheromone = 1;
+            EliteCount = 5;
+            MinPheronome = 1;
+            EliteBoost = 5;
         }
 
         public void Show()
@@ -80,10 +88,8 @@
             Console.WriteLine("Alfa:" + Alfa);
             Console.WriteLine("Beta: " + Beta);
             Console.WriteLine("Global Evaporation Rate: " + EvaporationRate);
-            Console.WriteLine("Q0: " + Q0);
             Console.WriteLine("AntCount: " + AntsCount);
             Console.WriteLine("Iterations: " + Iterations);
-            Console.WriteLine("T0: " + T0);
             Console.WriteLine();
         }
     }

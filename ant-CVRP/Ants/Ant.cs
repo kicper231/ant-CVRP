@@ -10,6 +10,7 @@ namespace Ants
             Graph = graph;
             VisitedPoints = new List<Point>();
             UnvisitedPoints = new List<Point>();
+            PointPath = new List<Point>();
             Path = new List<Edge>();
             PathLengthLimit = lengthLimit;
             CapacityLimit = CapacityLimit;
@@ -26,6 +27,7 @@ namespace Ants
         public List<Point> VisitedPoints { get; set; }
         public List<Point> UnvisitedPoints { get; set; }
         public List<Edge> Path { get; set; }
+        public List<Point> PointPath { get; set; }
 
         public Point StartPoint { get; set; }
         public Point ActualPoint { get; set; }
@@ -42,12 +44,14 @@ namespace Ants
             PathLength = 0;
             Capacity = 0;
             ActualPoint = StartPoint;
+            PointPath.Clear();
         }
 
         public void ResetTotal()
         {
             VisitedPoints.Clear();
             UnvisitedPoints.Clear();
+            PointPath.Clear();
             Path.Clear();
             PathLength = 0;
             Capacity = 0;
@@ -58,17 +62,9 @@ namespace Ants
             UnvisitedPoints.Remove(StartPoint);
         }
 
-        public List<Edge> CopyPath()
+        public List<Point> CopyPath()
         {
-            return Path
-                .Select(e => new Edge(e.Start, e.End)
-                {
-                    Length = e.Length,
-                    Pheromone = e.Pheromone,
-                    Weight = e.Weight,
-                    Direction = e.Direction
-                })
-                .ToList();
+            return PointPath.ToList();
         }
     }
 }

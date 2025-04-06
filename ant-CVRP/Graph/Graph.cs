@@ -1,11 +1,13 @@
-﻿namespace GraphRepresentation
+﻿using ant_CVRP.Solver;
+
+namespace GraphRepresentation
 {
     public class Graph
     {
         public List<Point> Points { get; set; }
 
         // TODO: To change
-        private Dictionary<(int, int), Edge> Edges { get; set; }
+        public Dictionary<(int, int), Edge> Edges { get; set; }
 
         public int Dimensions { get; set; }
         public double MinimumPheromone { get; set; }
@@ -34,9 +36,9 @@
                     {
                         Edge edge = new Edge(Points[i], Points[j]);
 
-                        if (!Edges.ContainsKey((Math.Min(i, j), Math.Max(i, j))))
+                        if (!Edges.ContainsKey((Math.Min(edge.Start.Id, edge.End.Id), Math.Max(edge.Start.Id, edge.End.Id))))
                         {
-                            Edges.Add((Math.Min(i, j), Math.Max(i, j)), edge);
+                            Edges.Add((Math.Min(edge.Start.Id, edge.End.Id), Math.Max(edge.Start.Id, edge.End.Id)), edge);
                         }
                     }
                 }
@@ -48,17 +50,21 @@
             return Edges[(Math.Min(firstPointId, secondPointId), Math.Max(firstPointId, secondPointId))];
         }
 
+        public Point GetPoint(int pointId)
+        {
+            Point result = Points[pointId - 1];
+            if (result.Id != pointId)
+            {
+                throw new InvalidOperationException("");
+            }
+            return result;
+        }
         public void ResetPheromone(double pheromoneValue)
         {
             foreach (var edge in Edges)
             {
                 edge.Value.Pheromone = pheromoneValue;
             }
-        }
-
-        public void EvaporatePheromone(Edge edge, double value)
-        {
-            edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
         }
 
         public void EvaporatePheromone(int firstId, int secondId, double value)
@@ -75,7 +81,6 @@
         public void DepositPheromone(int firstId, int secondId, double value)
         {
             Edge edge = GetEdge(firstId, secondId);
-            edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
             edge.Pheromone += value;
         }
 
@@ -90,10 +95,10 @@
             }
             Console.WriteLine();
 
-            for (int i = 0; i < Points.Count; i++)
+            for (int i = 1; i <= Points.Count; i++)
             {
                 Console.Write($"{i + 1,4} ");
-                for (int j = 0; j < Points.Count; j++)
+                for (int j = 1; j <= Points.Count; j++)
                 {
                     if (i == j)
                     {
@@ -134,10 +139,10 @@
             }
             Console.WriteLine();
 
-            for (int i = 0; i < Points.Count; i++)
+            for (int i = 1; i <= Points.Count; i++)
             {
                 Console.Write($"{i + 1,4} ");
-                for (int j = 0; j < Points.Count; j++)
+                for (int j = 1; j <= Points.Count; j++)
                 {
                     if (i == j)
                     {
@@ -157,6 +162,66 @@
                 }
                 Console.WriteLine();
             }
+        }
+
+        public void PrintPoints()
+        {
+            Console.WriteLine("=== Points ===");
+            Console.WriteLine(" ID   X     Y   Demand");
+            foreach (var point in Points)
+            {
+                Console.WriteLine($"{point.Id,3} {point.X,5} {point.Y,5}   {point.Demand,6}");
+            }
+        }
+
+        public static Solution CreateManualSolution(Graph graph)
+        {
+            // Indeksy punktów (0-based, bo takie są w obiektach Point.Id)
+            var routeNodeIds = new List<List<int>>
+    {
+        new List<int> { 1,22, 5, 6, 9, 10, 8, 1 },             // Route #1
+        new List<int> { 1,19, 20, 21, 23, 18, 15, 16, 17, 4, 3, 2, 7, 12, 13, 1 }, // Route #2
+        new List<int> { 1,14, 11,1 }                          // Route #3
+    };
+
+            routeNodeIds = new List<List<int>>
+{
+    new List<int> { 1, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 1 }, // Route #1
+    new List<int> { 1, 11, 1 },                                           // Route #2
+    new List<int> { 1, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }                     // Route #3
+};
+
+            routeNodeIds = new List<List<int>>
+{
+    new List<int> { 1, 22, 5, 6, 9, 10, 8, 1 },                     // Route #1
+    new List<int> { 1, 19, 20, 21, 23, 18, 15, 16, 17, 4, 3, 2, 7, 12, 13, 1 }, // Route #2
+    new List<int> { 1, 14, 11, 1 }                                  // Route #3
+        };
+
+            routeNodeIds = new List<List<int>>
+{
+    new List<int> { 1, 18, 21, 19, 16, 13, 1 },       // Route #1
+    new List<int> { 1, 17, 20, 22, 15, 1 },           // Route #2
+    new List<int> { 1, 14, 12, 5, 4, 9, 11, 1 },      // Route #3
+    new List<int> { 1, 10, 8, 6, 3, 2, 7, 1 }         // Route #4
+};
+
+            var solution = new Solution(graph);
+
+            foreach (var nodeIds in routeNodeIds)
+            {
+                var routePoints = new List<Point>();
+
+                foreach (int current in nodeIds)
+                {
+                    routePoints.Add(graph.GetPoint(current));
+                }
+
+                solution.Paths.Add(routePoints);
+            }
+
+            solution.RateSolution();
+            return solution;
         }
     }
 }

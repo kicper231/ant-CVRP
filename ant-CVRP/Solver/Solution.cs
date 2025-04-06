@@ -4,46 +4,45 @@ namespace ant_CVRP.Solver
 {
     public class Solution
     {
-        public List<List<Edge>> Paths { get; set; }
+        private Graph Graph { get; set; }
+        public List<List<Point>> Paths { get; set; }
+
+        public List<int> Demands { get; set; }
+        public List<int> Lengths { get; set; }
 
         public double Rating { get; set; }
 
-        public Solution()
+        public Solution(Graph graph)
         {
-            Paths = new List<List<Edge>>() { };
+            Graph = graph;
+            Paths = new List<List<Point>>() { };
             Rating = Double.MaxValue;
+            Demands = new List<int>();
+            Lengths = new List<int>();
         }
 
         public void PrintSolution()
         {
             RateSolution();
             Console.WriteLine("=== Solution ===");
-            int routeNumber = 1;
+            int routeNumber = 0;
 
             foreach (var route in Paths)
             {
-                Console.Write($"Route {routeNumber}: ");
+                Console.Write($"Route {routeNumber + 1}: ");
                 if (route.Count > 0)
                 {
-                    Console.Write($"{route[0].Start.Id + 1} -> ");
-                    Console.Write($"{route[0].End.Id + 1} -> ");
-                    int actualId = route[0].End.Id;
-
-                    foreach (var edge in route.Skip(1))
+                    foreach (var point in route)
                     {
-                        actualId = actualId == edge.End.Id ? edge.Start.Id : edge.End.Id;
-                        Console.Write($"{actualId + 1} -> ");
+                        Console.Write($"{point.Id} ->");
                     }
-                    Console.WriteLine("1");
                 }
                 else
                 {
                     Console.WriteLine("Empty");
                 }
 
-                double routeLength = route.Sum(e => e.Length);
-                routeLength += route.Last().Direction ? route.Last().End.DistanceTo(route[0].Start) : route.Last().Start.DistanceTo(route[0].Start);
-                Console.WriteLine($"  Route Length: {routeLength:F2}");
+                Console.WriteLine($"  Route Length: {Lengths[routeNumber]:F2}  Demand: {Demands[routeNumber]:F2}");
                 routeNumber++;
             }
             Console.WriteLine($"Total Rating (Cost): {Rating:F2}");
@@ -51,20 +50,26 @@ namespace ant_CVRP.Solver
 
         public void RateSolution()
         {
-            double totalLength = 0;
+            int totalLength = 0;
+            int demand = 0;
 
             foreach (var route in Paths)
             {
-                foreach (var edge in route)
+                Point currentPoint = route[0];
+                int currentLenght = 0;
+
+                foreach (var nextPoint in route.Skip(1))
                 {
-                    totalLength += edge.Length;
+                    Edge edge = Graph.GetEdge(currentPoint.Id, nextPoint.Id);
+                    currentLenght += edge.Length;
+
+                    demand += nextPoint.Demand;
+                    currentPoint = nextPoint;
                 }
-                if (route.Count > 0)
-                {
-                    var last = route[^1]; // ostatnia krawędź
-                    double returnDistance = last.Direction ? last.End.DistanceTo(route[0].Start) : last.Start.DistanceTo(route[0].Start);
-                    totalLength += returnDistance;
-                }
+                Demands.Add(demand);
+                totalLength += currentLenght;
+                Lengths.Add(currentLenght);
+                demand = 0;
             }
 
             Rating = totalLength;
