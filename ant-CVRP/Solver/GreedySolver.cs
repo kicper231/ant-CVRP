@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ant_CVRP.Solver;
+﻿using ant_CVRP.Solver;
 using GraphRepresentation;
 
 namespace AntSolver
@@ -18,7 +15,7 @@ namespace AntSolver
             Graph = graph;
             StartPoint = graph.StartPoint;
             CapacityLimit = graph.CapacityLimit;
-            UnvisitedPoints = graph.Points.Where(p => p.Id != StartPoint.Id).ToList(); 
+            UnvisitedPoints = graph.Points.Where(p => p.Id != StartPoint.Id).ToList();
         }
 
         public Solution Solve()

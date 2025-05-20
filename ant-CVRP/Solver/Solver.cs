@@ -9,12 +9,14 @@ namespace AntSolver
     {
         public Parameters Parameters { get; set; }
         public Solution BestSolution { get; set; }
+        public List<(int Iteration, double Rating)> SolutionsLog { get; set; } = new();
 
+        public int LogStep { get; set; }
         private List<Ant> Ants { get; set; }
         private Graph Graph { get; set; }
         private Stopwatch Stopwatch { get; set; }
-        
-        private static readonly Random _random = new Random();
+
+        private static readonly Random _random = new Random(42);
 
         private List<Solution> Solutions { get; set; }
 
@@ -34,20 +36,18 @@ namespace AntSolver
             }
 
             Graph.MinimumPheromone = Parameters!.MinPheronome;
+            Graph.MaximumPheronome = Parameters!.MaxPheronome;
+            Graph.StartingPheronome = Parameters!.StartPheromone;
             Parameters.CapacityLimit = graph.CapacityLimit;
+            Graph.MinMaxMode = Parameters!.MinMaxMode;
+            Graph.Reset();
         }
 
         public void Solve()
         {
-            //Solution a = Graph.CreateManualSolution(Graph);
-            //a.PrintSolution();
-
-            Graph.PrintPheromoneMatrix();
-            // Create Ants
+            SolutionsLog.Clear();
+            Graph.Reset();
             CreateAnts();
-            //Solution solution = OneAntSolution(Ants[0]);
-            //solution.PrintSolution();
-            //Solutions.Add(solution);
 
             for (int i = 1; i <= Parameters.Iterations; i++)
             {
@@ -58,9 +58,6 @@ namespace AntSolver
                 for (int j = 0; j < Parameters.AntsCount; j++)
                 {
                     Solution solution = OneAntSolution(Ants[j]);
-                    //Console.WriteLine();
-                    //   solution.PrintSolution();
-                    //  Console.WriteLine();
                     Solutions.Add(solution);
 
                     if (i == 1 && j == 0)
@@ -69,29 +66,16 @@ namespace AntSolver
                     }
                 }
 
-                // Wyciagnij najlepsze rozwiazanie
-               
-
-
                 if (BestSolution.Rating > Solutions.Min(x => x.Rating))
                 {
                     BestSolution = Solutions.MinBy(x => x.Rating)!;
                 }
 
-                if (i % 500== 0)
+                if (i % Parameters.LogStep == 0 || i == 1)
                 {
-                    Console.WriteLine();
-                    foreach (var x in Solutions)
-                    {
-                        Console.Write($"{x.Rating} ");
-                    }
-                    Console.WriteLine();
-
-                    //Graph.PrintPheromoneMatrix();
-                    BestSolution.PrintSolution();
+                    SolutionsLog.Add((i, BestSolution.Rating));
                 }
 
-                // Update Pheronome
                 UpdatePheromone();
             }
         }
@@ -99,7 +83,6 @@ namespace AntSolver
         public Solution OneAntSolution(Ant ant)
         {
             Solution solution = new Solution(Graph);
-
 
             while (ant.UnvisitedPoints.Count != 0)
             {
@@ -114,7 +97,7 @@ namespace AntSolver
                     //                             Math.Pow(1 / (Graph.GetEdge(ant.ActualPoint.Id, x.Id).Length), Parameters.Beta))
                     //                            .ToArray();
 
-                    List<double> probabilitiesList = new List<double>();    
+                    List<double> probabilitiesList = new List<double>();
 
                     foreach (var point in ant.UnvisitedPoints)
                     {
@@ -125,8 +108,6 @@ namespace AntSolver
                         double pheromoneComponent = Math.Pow(pheromone, Parameters.Alfa);
                         double distanceComponent = Math.Pow(1.0 / distance, Parameters.Beta);
                         double probability = pheromoneComponent * distanceComponent;
-
-                       // Console.WriteLine($"To point {point.Id} → pheromone: {pheromone}, distance: {distance}, pher^a: {pheromoneComponent}, (1/d)^b: {distanceComponent}, prob: {probability}");
 
                         probabilitiesList.Add(probability);
                     }
@@ -192,39 +173,45 @@ namespace AntSolver
                 Graph.EvaporatePheromone(edge.Start.Id, edge.End.Id, (1 - Parameters.EvaporationRate));
             }
 
-            foreach (var solution in Solutions)
+            if (Parameters.EliteMode || Parameters.MinMaxMode)
             {
-                double depositAmount = Parameters.Q / solution.Rating;
+                // (Elitist Ant System)
+                var eliteSolutions = Solutions.OrderBy(s => s.Rating).Take(Parameters.EliteCount);
 
-                foreach (var path in solution.Paths)
+                foreach (var eliteSolution in eliteSolutions)
                 {
-                    for (int i = 0; i < path.Count - 1; i++)
-                    {
-                        Point current = path[i];
-                        Point next = path[i + 1];
+                    double eliteDeposit = (Parameters.Q / eliteSolution.Rating) * Parameters.EliteBoost;
 
-                        var edge = Graph.GetEdge(current.Id, next.Id);
-                        Graph.DepositPheromone(edge.Start.Id, edge.End.Id, depositAmount);
+                    foreach (var path in eliteSolution.Paths)
+                    {
+                        for (int i = 0; i < path.Count - 1; i++)
+                        {
+                            Point current = path[i];
+                            Point next = path[i + 1];
+
+                            var edge = Graph.GetEdge(current.Id, next.Id);
+                            Graph.DepositPheromone(edge.Start.Id, edge.End.Id, eliteDeposit);
+                        }
                     }
                 }
             }
 
-            // (Elitist Ant System)
-            var eliteSolutions = Solutions.OrderBy(s => s.Rating).Take(Parameters.EliteCount);
-
-            foreach (var eliteSolution in eliteSolutions)
+            if (!Parameters.MinMaxMode)
             {
-                double eliteDeposit = (Parameters.Q / eliteSolution.Rating)*Parameters.EliteBoost;
-
-                foreach (var path in eliteSolution.Paths)
+                foreach (var solution in Solutions)
                 {
-                    for (int i = 0; i < path.Count - 1; i++)
-                    {
-                        Point current = path[i];
-                        Point next = path[i + 1];
+                    double depositAmount = (Parameters.Q / solution.Rating) / solution.Paths.Count;
 
-                        var edge = Graph.GetEdge(current.Id, next.Id);
-                        Graph.DepositPheromone(edge.Start.Id, edge.End.Id, eliteDeposit);
+                    foreach (var path in solution.Paths)
+                    {
+                        for (int i = 0; i < path.Count - 1; i++)
+                        {
+                            Point current = path[i];
+                            Point next = path[i + 1];
+
+                            var edge = Graph.GetEdge(current.Id, next.Id);
+                            Graph.DepositPheromone(edge.Start.Id, edge.End.Id, depositAmount);
+                        }
                     }
                 }
             }

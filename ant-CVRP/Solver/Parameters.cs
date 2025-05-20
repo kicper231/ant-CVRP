@@ -16,7 +16,7 @@
         public double EvaporationRate { get; set; }
 
         /// <summary>
-        ///   Q / Rating parametr
+        /// Q / Rating parametr
         /// </summary>
         public double Q { get; set; }
 
@@ -51,8 +51,12 @@
         public int EliteCount { get; set; }
 
         public double MinPheronome { get; set; }
-        
+
+        public double MaxPheronome { get; set; }
+
         public double EliteBoost { get; set; }
+
+        public int LogStep { get; set; }
 
         public Parameters(int alfa, int beta, double evaporationRate, double T0, double Q0, int antsCount, int iterations, int capacityLimit, double startPheromone)
         {
@@ -65,22 +69,26 @@
             this.StartPheromone = startPheromone;
         }
 
-        /// <summary>
-        /// Default parameters
-        /// </summary>
+        public bool EliteMode { get; set; }
+        public bool MinMaxMode { get; set; }
+
         public Parameters()
         {
             Beta = 4;
-            Alfa = 1;
-            EvaporationRate = 0.4;
-            Q = 250;
-            AntsCount = 60;
+            Alfa = 2;
+            EvaporationRate = 0.2;
+            Q = 100;
+            AntsCount = 20;
             CapacityLimit = 100;
-            Iterations = 5000;
-            StartPheromone = 1;
-            EliteCount = 5;
+            Iterations = 3000;
+            StartPheromone = 0.5;
+            EliteCount = 3;
             MinPheronome = 1;
-            EliteBoost = 5;
+            MaxPheronome = 80;
+            EliteBoost = 3;
+            EliteMode = false;
+            MinMaxMode = true;
+            LogStep = 10;
         }
 
         public void Show()

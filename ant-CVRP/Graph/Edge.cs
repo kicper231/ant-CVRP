@@ -20,6 +20,7 @@
             Weight = Length;
             Pheromone = 0.5;
         }
+
         public Edge(Point start, Point end, double pheromone)
         {
             Start = start;
