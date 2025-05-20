@@ -6,15 +6,20 @@ namespace GraphRepresentation
     {
         public List<Point> Points { get; set; }
 
-        // TODO: To change
         public Dictionary<(int, int), Edge> Edges { get; set; }
 
         public int Dimensions { get; set; }
         public double MinimumPheromone { get; set; }
 
+        public double MaximumPheronome { get; set; }
+
+        public double StartingPheronome { get; set; }
+
         public Point StartPoint { get; set; }
 
         public int CapacityLimit { get; set; }
+
+        public bool MinMaxMode { get; set; }
 
         public Graph(List<Point> Points, int capacityLimit)
         {
@@ -26,6 +31,21 @@ namespace GraphRepresentation
             CreateEdges();
         }
 
+        public void Reset()
+        {
+            for (int i = 1; i <= Points.Count; i++)
+            {
+                for (int j = 1; j <= Points.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        Edge edge = GetEdge(i, j);
+                        edge.Pheromone = StartingPheronome;
+                    }
+                }
+            }
+        }
+
         private void CreateEdges()
         {
             for (int i = 0; i < Points.Count; i++)
@@ -35,6 +55,7 @@ namespace GraphRepresentation
                     if (i != j)
                     {
                         Edge edge = new Edge(Points[i], Points[j]);
+                        edge.Pheromone = StartingPheronome;
 
                         if (!Edges.ContainsKey((Math.Min(edge.Start.Id, edge.End.Id), Math.Max(edge.Start.Id, edge.End.Id))))
                         {
@@ -59,29 +80,32 @@ namespace GraphRepresentation
             }
             return result;
         }
-        public void ResetPheromone(double pheromoneValue)
-        {
-            foreach (var edge in Edges)
-            {
-                edge.Value.Pheromone = pheromoneValue;
-            }
-        }
 
         public void EvaporatePheromone(int firstId, int secondId, double value)
         {
             Edge edge = GetEdge(firstId, secondId);
-            edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
-        }
 
-        public void DepositPheromone(Edge edge, double value)
-        {
-            edge.Pheromone += value;
+            if (MinMaxMode)
+            {
+                edge.Pheromone = Math.Max(MinimumPheromone, edge.Pheromone * value);
+            }
+            else
+            {
+                edge.Pheromone *= value;
+            }
         }
 
         public void DepositPheromone(int firstId, int secondId, double value)
         {
             Edge edge = GetEdge(firstId, secondId);
-            edge.Pheromone += value;
+            if (MinMaxMode)
+            {
+                edge.Pheromone = Math.Min(MaximumPheronome, edge.Pheromone + value);
+            }
+            else
+            {
+                edge.Pheromone += value;
+            }
         }
 
         // chat generated
@@ -174,9 +198,9 @@ namespace GraphRepresentation
             }
         }
 
+        // Chat gtp generated
         public static Solution CreateManualSolution(Graph graph)
         {
-            // Indeksy punktów (0-based, bo takie są w obiektach Point.Id)
             var routeNodeIds = new List<List<int>>
     {
         new List<int> { 1,22, 5, 6, 9, 10, 8, 1 },             // Route #1

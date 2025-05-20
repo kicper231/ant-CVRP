@@ -21,6 +21,9 @@
     <None Update="DataSets\E-n33-k4.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="DataSets\E-n51-k5.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DataSets\Example.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
